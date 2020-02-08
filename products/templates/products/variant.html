@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% load static product_extras %}
+
+{% block head_title %}
+  {{ variant.product.manufacturer.name }} {{ variant.product.name }}:
+  {{ variant.name }}
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'products/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id='breadcrumbs'>
+    <a href='{% url "category_all" %}'>All</a> &rsaquo;
+    {% for category in variant.product.category.get_ancestors %}
+      <a href='{% url "category" category.slug %}'>{{ category.name }}</a> &rsaquo;
+    {% endfor %}
+    <a href='{% url "category" variant.product.category.slug %}'>
+      {{ variant.product.category.name }}
+    </a>
+  </div>
+
+  <div id='product-return'>
+    <a href='{% url "product" variant.product.slug %}'>
+      &laquo; Return to Product Page
+    </a>
+  </div>
+
+  <div class='center-outer'>
+    <div id='center-adjustment' class='center-inner'>
+      <h1 id='product-title'>
+        {{ variant.product.manufacturer.name }} {{ variant.product.name }}:
+        {{ variant.name }}
+      </h1>
+
+      <h2 class='content-title'>Overview</h2>
+      <div id='variant-overview'>
+        <div id='variant-image'>
+          {% if variant.image %}
+            <img src='{{ variant.image }}' />
+          {% else %}
+            <img src='{% static "img/noimage.png" %}' />
+          {% endif %}
+        </div>
+
+        <table id='variant-details'>
+          {% if not variant.model and not variant.msrp %}
+            <tr><td id='no-details'>Missing product details</td></tr>
+          {% endif %}
+          {% if variant.model %}
+            <tr>
+              <td><strong>Model no.</strong></td>
+              <td>{{ variant.model }}</td>
+            </tr>
+          {% endif %}
+          {% if variant.msrp %}
+            <tr>
+              <td><strong>MSRP</strong></td>
+              <td>{{ variant.msrp|format_price }}</td>
+            </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <h2 class='content-title'>Current Prices</h2>
+      <div id='table-wrap'>
+        <table id='price-table'>
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Price</th>
+              <th>Shipping</th>
+              <th>Seller</th>
+              <th>Update</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% regroup current_prices by condition as current %}
+            {% for group in current %}
+              <tr>
+                <td class='splitter' colspan='6'>
+                  {% if group.grouper == 'new' %}New
+                  {% elif group.grouper == 'refurb' %}Refurbished
+                  {% else %}Used{% endif %}
+                </td>
+              </tr>
+              {% for price in group.list %}
+                <tr>
+                  <td class='center'>
+                    <a href='{{ price.listing.url }}'>
+                      <img class='retailer' src='{% static "img/retailers/"|add:price.listing.retailer|add:".png" %}' />
+                    </a>
+                  </td>
+                  <td class='center'>
+                    <a class='price' href='{{ price.listing.url }}'>
+                      {% if price.price %}
+                        {{ price.price|format_price }}
+                      {% else %}
+                        Click for pricing
+                      {% endif %}
+                    </a>
+                  </td>
+                  <td class='smaller-font center'>
+                    {% if price.shipping_type == 'free' %}
+                      Free
+                    {% elif price.shipping_type == 'prime' %}
+                      <img class='prime' src='{% static "img/prime.png" %}' />
+                    {% endif %}
+                  </td>
+                  <td class='smaller-font'>
+                    {{ price.seller|capfirst }}
+                  </td>
+                    <td class='smaller-font'>
+                      {{ price.time|date:'d-m-Y H T' }}
+                    </td>
+                  <td class='center'>
+                    <a class='listing' href='{{ price.listing.url }}'>Visit site</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td id='disclaimer' colspan='6'>
+                <em>
+                  Should you decide to purchase a product through a link on this page Fetching Tech may receive a small commission.
+                </em>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <h2 class='content-title'>Lowest Prices</h2>
+      <div id='table-wrap'>
+        <table id='price-table'>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Site</th>
+              <th>Price</th>
+              <th>Shipping</th>
+              <th>Seller</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id='low-price-border' colspan='6'></td>
+            </tr>
+            {% for price in low_prices %}
+              {% if price %}
+                <tr>
+                  <td class='smaller-font'>{{ price.condition|capfirst }}</td>
+                  <td class='center'>
+                    <a href='{{ price.listing.url }}'>
+                      <img class='retailer' src='{% static "img/retailers/"|add:price.listing.retailer|add:".png" %}' />
+                    </a>
+                  </td>
+                  <td class='center'>
+                    <a class='price' href='{{ price.listing.url }}'>
+                      {% if price.price %}
+                        {{ price.price|format_price }}
+                      {% else %}
+                        Click for pricing
+                      {% endif %}
+                    </a>
+                  </td>
+                  <td class='smaller-font center'>
+                    {% if price.shipping_type == 'free' %}
+                      Free
+                    {% elif price.shipping_type == 'prime' %}
+                      <img class='prime' src='{% static "img/prime.png" %}' />
+                    {% endif %}
+                  </td>
+                  <td class='smaller-font'>
+                    {{ price.seller|capfirst }}
+                  </td>
+                  <td class='smaller-font'>
+                    {{ price.time|date:'d-m-Y H T' }}
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class='content-title'>Price History</h2>
+      <div id='price-history-wrap'>
+        <div id='price-history-wrap2'>
+          <canvas id='price-history'></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js'>
+  </script>
+  <script type="text/javascript" src="{% static 'products/js/script.js' %}"></script>
+  <script type='text/javascript'>
+    var price_history = jQuery.parseJSON('{{ price_history|safe }}');
+  </script>
+{% endblock %}

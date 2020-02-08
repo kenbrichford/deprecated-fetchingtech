@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% load static product_extras %}
+
+{% block head_title %}Home{% endblock %}
+
+{% block content %}
+  {% if products %}
+    <h1 class='main-title'>Fetching Deals</h1>
+    <div class='thumb-grid'>
+      {% for product in products %}
+        <div class='thumb'>
+          <a href='{% url "product" product.slug %}'>
+            <div class='thumb-head'>
+              {{ product.category.get_root }}
+            </div>
+            <div class='thumb-image'>
+              {% if product.image %}
+                <img src='{{ product.image }}' />
+              {% else %}
+                <img src='{% static "img/noimage.png" %}' />
+              {% endif %}
+            </div>
+            <div class='thumb-title'>
+              {{ product.manufacturer.name }} {{ product.name }}
+            </div>
+            <div class='thumb-prices'>
+              <div class='thumb-price'>
+                {% if product.new_price %}
+                  <span class='condition'>New</span>
+                  <span class='price'>
+                    {{ product.new_price|format_price }}
+                  </span>
+                  {% if product.new_shipping == 'free' %}
+                    <span class='shipping'>+ free s/h</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              <div class='thumb-price'>
+                {% if product.refurb_price %}
+                  <span class='condition'>Refurb</span>
+                  <span class='price'>
+                    {{ product.refurb_price|format_price }}
+                  </span>
+                  {% if product.refurb_shipping == 'free' %}
+                    <span class='shipping'>+ free s/h</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              <div class='thumb-price'>
+                {% if product.used_price %}
+                  <span class='condition'>Used</span>
+                  <span class='price'>
+                    {{ product.used_price|format_price }}
+                  </span>
+                  {% if product.used_shipping == 'free' %}
+                    <span class='shipping'>+ free s/h</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <h2 class='no-result'>No results found</h2>
+  {% endif %}
+{% endblock %}

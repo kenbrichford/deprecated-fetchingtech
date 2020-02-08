@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head_title %}All Categories{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'products/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+  <h1 class='main-title'>Categories</h1>
+  <div class='thumb-grid'>
+    {% for category in categories %}
+      <div class='thumb'>
+        <a href='{% url "category" category.slug %}'>
+          <div class='thumb-image'>
+            <img src='{{ category.image.url }}' />
+          </div>
+          <div class='thumb-category'>
+            {{ category.name }}
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

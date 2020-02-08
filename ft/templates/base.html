@@ -1,0 +1,91 @@
+{% load static %}
+
+<!DOCTYPE html>
+	<head>
+		{% if request.META.HTTP_HOST == 'fetching.tech' %}
+			<!-- Global site tag (gtag.js) - Google Analytics -->
+			<script async src="https://www.googletagmanager.com/gtag/js?id=UA-80074533-2"></script>
+			<script>
+			  window.dataLayer = window.dataLayer || [];
+			  function gtag(){dataLayer.push(arguments);}
+			  gtag('js', new Date());
+
+			  gtag('config', 'UA-80074533-2');
+			</script>
+		{% endif %}
+
+		<meta charset="utf-8" />
+		<title>{% block head_title %}{% endblock %} | Fetching Tech</title>
+		<meta name="description" content="Fetching Tech is a product research engine built to make finding the best tech gadgets at the lowest prices a more enjoyable experience." />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name='application-name' content='Fetching Tech' />
+		<meta name='referrer' content='no-referrer-when-downgrade' />
+
+		<link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
+		<link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
+		<link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
+		<link rel="manifest" href="{% static 'img/favicons/site.webmanifest' %}">
+		<link rel="mask-icon" href="{% static 'img/favicons/safari-pinned-tab.svg' %}" color="#00ff7f">
+		<link rel="shortcut icon" href="{% static 'img/favicons/favicon.ico' %}">
+		<meta name="msapplication-TileColor" content="#00cc65">
+		<meta name="msapplication-config" content="{% static 'img/favicons/browserconfig.xml' %}">
+		<meta name="theme-color" content="#00cc65">
+
+		{# Global stylesheets #}
+		<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+		{# Extra stylesheets #}
+		{% block extra_css %}{% endblock %}
+	</head>
+
+	<body>
+		<header>
+			<div id='site-head'>
+				<div id='head-logo'>
+					<a href='/'>
+						<img  src='{% static "img/logo.png" %}' />
+					</a>
+				</div>
+
+				<div id='head-arrow'>
+					<img src='{% static "img/icons/arrow.png" %}' />
+				</div>
+
+				<div id='head-links'>
+					<a href='{% url "category_all" %}'>Search by Category</a>
+				</div>
+
+				<form id='head-search' method='get' action='{% url "search" %}'>
+					{% for field in search_form %}{{ field }}{% endfor %}
+					<input id='image_submit' type='submit' value='' />
+				</form>
+			</div>
+		</header>
+
+		<main><div id='site-main'>{% block content %}{% endblock %}</div></main>
+
+		<footer>
+			<div id='site-foot'>
+				<div id='foot-text'>
+					Copyright &copy; {% now 'Y' %} Fetching Tech. All rights reserved.
+				</div>
+				<div id='foot-links'>
+						<a href='/about/'>About</a>
+						<a href='/contact/'>Contact</a>
+						<a href='/terms/'>Terms</a>
+						<a href='/privacy/'>Privacy</a>
+						<a href='/disclosure/'>Disclosure</a>
+				</div>
+			</div>
+		</footer>
+
+		{# Global javascript #}
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+  		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  		crossorigin="anonymous"></script>
+		<script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+
+		{# Extra javascript #}
+		{% block extra_js %}{% endblock %}
+	</body>
+</html>

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% load static mptt_tags product_extras %}
+
+{% block head_title %}
+  {% if category.parent %}
+    {{ category.get_ancestors|tree_path:' &rsaquo; ' }} &rsaquo;
+  {% endif %}
+  {{ category }}
+{% endblock %}
+
+{% block content %}
+  <h1 class='main-title'>
+    {% if category.parent %}
+      {{ category.get_ancestors|tree_path:' &rsaquo; ' }} &rsaquo;
+    {% endif %}
+    {{ category }}
+  </h1>
+
+  <div class='content-wrap'>
+    <div class='left-side'>
+      <h2 class='side-title'>Filter by Category</h2>
+      <ul class='side-list'>
+        {% if category.parent %}
+          <li>
+            <a href='{% url "category" category.parent.slug %}'>
+              {{ category.parent.name }}
+            </a>
+          </li>
+          <ul>
+        {% endif %}
+          <li><strong>{{ category.name }}</strong></li>
+          {% if category.get_children %}
+            <ul>
+              {% for child in category.get_children %}
+                <li>
+                  <a href='{% url "category" child.slug %}'>{{ child.name }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% if category.parent %}</ul>{% endif %}
+      </ul>
+    </div>
+
+    <div class='right-main'>
+      {% if products %}
+        <div class='thumb-grid'>
+          {% for product in products %}
+            <div class='thumb'>
+              <a href='{% url "product" product.slug %}'>
+                <div class='thumb-head'>
+                  {{ product.category.get_root }}
+                </div>
+                <div class='thumb-image'>
+                  {% if product.image %}
+                    <img src='{{ product.image }}' />
+                  {% else %}
+                    <img src='{% static "img/noimage.png" %}' />
+                  {% endif %}
+                </div>
+                <div class='thumb-title'>
+                  {{ product.manufacturer.name }} {{ product.name }}
+                </div>
+                <div class='thumb-prices'>
+                  <div class='thumb-price'>
+                    {% if product.new_price %}
+                      <span class='condition'>New</span>
+                      <span class='price'>
+                        {{ product.new_price|format_price }}
+                      </span>
+                      {% if product.new_shipping == 'free' %}
+                        <span class='shipping'>+ free s/h</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                  <div class='thumb-price'>
+                    {% if product.refurb_price %}
+                      <span class='condition'>Refurb</span>
+                      <span class='price'>
+                        {{ product.refurb_price|format_price }}
+                      </span>
+                      {% if product.refurb_shipping == 'free' %}
+                        <span class='shipping'>+ free s/h</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                  <div class='thumb-price'>
+                    {% if product.used_price %}
+                      <span class='condition'>Used</span>
+                      <span class='price'>
+                        {{ product.used_price|format_price }}
+                      </span>
+                      {% if product.used_shipping == 'free' %}
+                        <span class='shipping'>+ free s/h</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <h2 class='no-result'>No results found</h2>
+      {% endif %}
+
+      <div class='pages'>
+        {% if products.has_previous %}
+          <a href='?page=1'>&laquo;</a>
+          <a href='?page={{ products.previous_page_number }}'>&lsaquo;</a>
+        {% else %}
+          <span class='disabled_link'>&laquo;</span>
+          <span class='disabled_link'>&lsaquo;</span>
+        {% endif %}
+
+        <span class='current_page'>
+          {{ products.number }} / {{ products.paginator.num_pages }}
+        </span>
+
+        {% if products.has_next %}
+          <a href='?page={{ products.next_page_number }}'>&rsaquo;</a>
+          <a href='?page={{ products.paginator.num_pages }}'>&raquo;</a>
+        {% else %}
+          <span class='disabled_link'>&rsaquo;</span>
+          <span class='disabled_link'>&raquo;</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

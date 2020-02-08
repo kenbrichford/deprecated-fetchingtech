@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% load static mptt_tags product_extras %}
+
+{% block head_title %}
+  {{ product.manufacturer.name }} {{ product.name }}
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'products/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id='breadcrumbs'>
+    <a href='{% url "category_all" %}'>All</a> &rsaquo;
+    {% for category in product.category.get_ancestors %}
+      <a href='{% url "category" category.slug %}'>{{ category.name }}</a> &rsaquo;
+    {% endfor %}
+    <a href='{% url "category" product.category.slug %}'>{{ product.category.name }}</a>
+  </div>
+
+  <div class='center-outer'>
+    <div id='center-adjustment' class='center-inner'>
+      <h1 id='product-title'>
+        {{ product.manufacturer.name }}
+        {% if product.product %}{{ product.product.name }} - {% endif %}
+        {{ product.name }}
+      </h1>
+
+      {% if variants %}
+        <h2 class='content-title'>Variants</h2>
+        <div class='thumb-grid'>
+          {% for variant in variants %}
+            <div id='variant-thumb' class='thumb'>
+              {% if variant.model %}
+                <div class='thumb-head'>
+                  {{ variant.model }}
+                </div>
+              {% endif %}
+              <a href='{% url "variant" product.slug variant.slug %}'>
+                <div id='variant-thumb-image' class='thumb-image'>
+                  {% if variant.image %}
+                    <img src='{{ variant.image }}' />
+                  {% else %}
+                    <img src='{% static "img/noimage.png" %}' />
+                  {% endif %}
+                </div>
+                <div class='thumb-title'>
+                  {{ variant.name }}
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <h2 class='content-title'>Lowest Prices (by variant)</h2>
+      <div id='table-wrap'>
+        <table id='price-table'>
+          <thead>
+            <tr>
+              <th>Variant</th>
+              <th>Site</th>
+              <th>Price</th>
+              <th>Shipping</th>
+              <th>Seller</th>
+              <th>Update</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% regroup variant_prices by condition as conditions %}
+            {% for group in conditions %}
+              <tr>
+                <td class='splitter' colspan='7'>
+                  {% if group.grouper == 'new' %}New
+                  {% elif group.grouper == 'refurb' %}Refurbished
+                  {% else %}Used{% endif %}
+                </td>
+              </tr>
+              {% regroup group.list by listing.variant.name as variants %}
+              {% for variant in variants %}
+                <tr>
+                  <td class='smaller-font'>{{ variant.grouper }}</td>
+                  <td class='center'>
+                    <a href='{{ variant.list.0.listing.url }}'>
+                      <img class='retailer' src='{% static "img/retailers/"|add:variant.list.0.listing.retailer|add:".png" %}' />
+                    </a>
+                  </td>
+                  <td class='center'>
+                    <a class='price' href='{{ variant.list.0.url }}'>
+                      {% if variant.list.0.price %}
+                        {{ variant.list.0.price|format_price }}
+                      {% else %}
+                        Click for pricing
+                      {% endif %}
+                    </a>
+                  </td>
+                  <td class='smaller-font center'>
+                    {% if variant.list.0.shipping_type == 'free' %}
+                      Free
+                    {% elif variant.list.0.shipping_type == 'prime' %}
+                      <img class='prime' src='{% static "img/prime.png" %}' />
+                    {% endif %}
+                  </td>
+                  <td class='smaller-font'>
+                    {{ variant.list.0.seller|capfirst }}
+                  </td>
+                  <td class='smaller-font'>
+                    {{ variant.list.0.time|date:'d-m-Y H T' }}
+                  </td>
+                  <td class='center'>
+                    <a class='listing' href='{{ variant.list.0.listing.url }}'>Visit site</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td id='disclaimer' colspan='7'>
+                <em>
+                  Should you decide to purchase a product through a link on this page Fetching Tech may receive a small commission.
+                </em>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}
