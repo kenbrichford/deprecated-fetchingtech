@@ -288,7 +288,7 @@ def parse_xml(url):
     return response
 
 if __name__ == '__main__':
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ft.settings.dev')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ft.settings.prod')
     django.setup()
 
     from pricing.models import Listing, Price
